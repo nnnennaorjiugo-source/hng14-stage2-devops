@@ -89,3 +89,15 @@
 - Problem: the application had no orchestration file for running the full stack together
 - What I changed: added a Compose file for frontend, api, worker, and redis with health checks, dependency conditions, an internal network, environment-based configuration, and resource limits
 - Why it mattered: required to run the multi-service app reliably and prepare it for integration testing
+
+## 16. Added linting configuration for pipeline
+- Files: `.flake8`, `frontend/.eslintrc.json`, `.github/workflows/ci-cd.yml`
+- Problem: repository had no linting or CI pipeline setup
+- What I changed: added flake8 for Python, eslint for JavaScript, hadolint for Dockerfiles, and a GitHub Actions lint job
+- Why it mattered: required first stage of the Stage 2 CI/CD pipeline
+
+## 17. Added API unit tests with pytest
+- File: `api/tests/test_main.py`
+- Problem: no test coverage for API endpoints
+- What I changed: added 3 unit tests for job creation, job status, and health check, with Redis mocked
+- Why it mattered: required for CI pipeline test stage and ensures API correctness

@@ -1,0 +1,47 @@
+name: Stage 2 CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - stage2-audit
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Python lint dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Lint Python API
+        run: flake8 api worker
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm install
+
+      - name: Lint frontend JavaScript
+        working-directory: frontend
+        run: npx eslint app.js
+
+      - name: Lint Dockerfiles with hadolint
+        run: |
+          docker run --rm -i hadolint/hadolint < api/Dockerfile
+          docker run --rm -i hadolint/hadolint < worker/Dockerfile
+          docker run --rm -i hadolint/hadolint < frontend/Dockerfile
+          

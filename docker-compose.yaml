@@ -30,6 +30,8 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+    ports:
+      - "8000:8000"
     networks:
       - internal
     healthcheck:
