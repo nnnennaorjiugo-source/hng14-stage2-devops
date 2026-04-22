@@ -65,3 +65,27 @@
 - Problem: files were shipped as one-line source code
 - What I changed: reformatted them into readable multi-line files
 - Why it mattered: easier to maintain, lint, test, and document with precise fixes
+
+## 12. Added production Dockerfile for API service
+- File: `api/Dockerfile`
+- Problem: API service had no container build definition
+- What I changed: created a Dockerfile using `python:3.12-slim`, installed dependencies, ran as a non-root user, and added a health check against `/health`
+- Why it mattered: required for containerized deployment and health-based orchestration
+
+## 13. Added production Dockerfile for worker service
+- File: `worker/Dockerfile`
+- Problem: worker service had no container build definition
+- What I changed: created a Dockerfile using `python:3.12-slim`, installed dependencies, ran as a non-root user, and added a Redis-based health check
+- Why it mattered: required for containerized deployment and health-based startup control
+
+## 14. Added production Dockerfile for frontend service
+- File: `frontend/Dockerfile`
+- Problem: frontend service had no container build definition
+- What I changed: created a Dockerfile using `node:20-alpine`, installed only production dependencies, ran as the non-root `node` user, and added a health check for `/`
+- Why it mattered: required for containerized deployment and health-based orchestration
+
+## 15. Added docker-compose stack for all services
+- File: `docker-compose.yml`
+- Problem: the application had no orchestration file for running the full stack together
+- What I changed: added a Compose file for frontend, api, worker, and redis with health checks, dependency conditions, an internal network, environment-based configuration, and resource limits
+- Why it mattered: required to run the multi-service app reliably and prepare it for integration testing
