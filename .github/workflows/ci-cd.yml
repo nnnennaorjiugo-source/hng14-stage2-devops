@@ -28,20 +28,92 @@ jobs:
       - name: Install Python lint dependencies
         run: pip install -r requirements-dev.txt
 
-      - name: Lint Python API
-        run: flake8 api worker
+      - name: Lint Python
+        run: python -m flake8 api worker
 
       - name: Install frontend dependencies
         working-directory: frontend
         run: npm install
 
-      - name: Lint frontend JavaScript
+      - name: Lint JavaScript
         working-directory: frontend
         run: npx eslint app.js
 
-      - name: Lint Dockerfiles with hadolint
+      - name: Lint Dockerfiles
         run: |
           docker run --rm -i hadolint/hadolint < api/Dockerfile
           docker run --rm -i hadolint/hadolint < worker/Dockerfile
           docker run --rm -i hadolint/hadolint < frontend/Dockerfile
-          
+
+  test:
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install test dependencies
+        run: |
+          pip install -r api/requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Run pytest with coverage
+        run: python -m pytest api/tests --cov=api --cov-report=xml
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-coverage-report
+          path: coverage.xml
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set image tag variables
+        run: |
+          echo "IMAGE_TAG=${GITHUB_SHA}" >> $GITHUB_ENV
+          echo "REGISTRY=localhost:5000" >> $GITHUB_ENV
+
+      - name: Build API image
+        run: |
+          docker build -t $REGISTRY/api:$IMAGE_TAG -t $REGISTRY/api:latest ./api
+
+      - name: Build worker image
+        run: |
+          docker build -t $REGISTRY/worker:$IMAGE_TAG -t $REGISTRY/worker:latest ./worker
+
+      - name: Build frontend image
+        run: |
+          docker build -t $REGISTRY/frontend:$IMAGE_TAG -t $REGISTRY/frontend:latest ./frontend
+
+      - name: Push API image
+        run: |
+          docker push $REGISTRY/api:$IMAGE_TAG
+          docker push $REGISTRY/api:latest
+
+      - name: Push worker image
+        run: |
+          docker push $REGISTRY/worker:$IMAGE_TAG
+          docker push $REGISTRY/worker:latest
+
+      - name: Push frontend image
+        run: |
+          docker push $REGISTRY/frontend:$IMAGE_TAG
+          docker push $REGISTRY/frontend:latest

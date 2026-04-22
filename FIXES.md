@@ -101,3 +101,9 @@
 - Problem: no test coverage for API endpoints
 - What I changed: added 3 unit tests for job creation, job status, and health check, with Redis mocked
 - Why it mattered: required for CI pipeline test stage and ensures API correctness
+
+## 18. Added test and build stages to CI pipeline
+- File: `.github/workflows/ci-cd.yml`
+- Problem: repository had no automated test or build pipeline
+- What I changed: added a `test` job with pytest and coverage artifact upload, and a `build` job that builds all three images, tags them with the git SHA and `latest`, and pushes them to a local registry service
+- Why it mattered: required by the Stage 2 CI/CD specification and enforces ordered pipeline execution
