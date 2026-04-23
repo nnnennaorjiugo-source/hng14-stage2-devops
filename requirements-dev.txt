@@ -1,4 +1,4 @@
 flake8
 pytest
 pytest-cov
-httpx
+httpx<0.28
