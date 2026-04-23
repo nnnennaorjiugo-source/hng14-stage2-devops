@@ -143,7 +143,7 @@ jobs:
           docker pull $REGISTRY/frontend:$IMAGE_TAG
 
       - name: Run Trivy scan
-        uses: aquasecurity/trivy-action@0.20.0
+        uses: uses: aquasecurity/trivy-action@v0.35.0
         with:
           image-ref: |
             ${{ env.REGISTRY }}/api:${{ env.IMAGE_TAG }}
