@@ -1,16 +1,25 @@
-FROM node:20-alpine
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
 COPY package*.json ./
+
 RUN npm ci --omit=dev
 
+
+FROM node:20-alpine AS runtime
+
+WORKDIR /app
+
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+COPY --from=builder /app/node_modules ./node_modules
 COPY app.js ./
 COPY views ./views
 
-RUN chown -R node:node /app
+RUN chown -R appuser:appgroup /app
 
-USER node
+USER appuser
 
 EXPOSE 3000
 
