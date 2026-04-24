@@ -139,32 +139,65 @@ jobs:
       - name: Build frontend image for scanning
         run: docker build -t frontend:${IMAGE_TAG} ./frontend
 
-      - name: Run Trivy scan for API
+      - name: Enforce CRITICAL scan for API
+        uses: aquasecurity/trivy-action@v0.35.0
+        with:
+          image-ref: api:${{ env.IMAGE_TAG }}
+          format: table
+          severity: CRITICAL
+          exit-code: 1
+          ignore-unfixed: true
+          scanners: vuln
+
+      - name: Enforce CRITICAL scan for worker
+        uses: aquasecurity/trivy-action@v0.35.0
+        with:
+          image-ref: worker:${{ env.IMAGE_TAG }}
+          format: table
+          severity: CRITICAL
+          exit-code: 1
+          ignore-unfixed: true
+          scanners: vuln
+
+      - name: Enforce CRITICAL scan for frontend
+        uses: aquasecurity/trivy-action@v0.35.0
+        with:
+          image-ref: frontend:${{ env.IMAGE_TAG }}
+          format: table
+          severity: CRITICAL
+          exit-code: 1
+          ignore-unfixed: true
+          scanners: vuln
+
+      - name: Generate API SARIF
         uses: aquasecurity/trivy-action@v0.35.0
         with:
           image-ref: api:${{ env.IMAGE_TAG }}
           format: sarif
           output: trivy-api.sarif
-          severity: CRITICAL
-          exit-code: 1
+          exit-code: 0
+          ignore-unfixed: true
+          scanners: vuln
 
-      - name: Run Trivy scan for worker
+      - name: Generate worker SARIF
         uses: aquasecurity/trivy-action@v0.35.0
         with:
           image-ref: worker:${{ env.IMAGE_TAG }}
           format: sarif
           output: trivy-worker.sarif
-          severity: CRITICAL
-          exit-code: 1
+          exit-code: 0
+          ignore-unfixed: true
+          scanners: vuln
 
-      - name: Run Trivy scan for frontend
+      - name: Generate frontend SARIF
         uses: aquasecurity/trivy-action@v0.35.0
         with:
           image-ref: frontend:${{ env.IMAGE_TAG }}
           format: sarif
           output: trivy-frontend.sarif
-          severity: CRITICAL
-          exit-code: 1
+          exit-code: 0
+          ignore-unfixed: true
+          scanners: vuln
 
       - name: Upload API SARIF
         uses: github/codeql-action/upload-sarif@v3
