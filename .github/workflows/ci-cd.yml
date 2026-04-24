@@ -7,6 +7,12 @@ on:
       - stage2-audit
   pull_request:
 
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+
 jobs:
   lint:
     runs-on: ubuntu-latest
