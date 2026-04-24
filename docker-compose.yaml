@@ -21,6 +21,7 @@ services:
   api:
     build:
       context: ./api
+    restart: unless-stopped
     env_file:
       - .env
     environment:
@@ -49,6 +50,7 @@ services:
   worker:
     build:
       context: ./worker
+    restart: unless-stopped
     env_file:
       - .env
     environment:
@@ -75,6 +77,7 @@ services:
   frontend:
     build:
       context: ./frontend
+    restart: unless-stopped
     env_file:
       - .env
     environment:

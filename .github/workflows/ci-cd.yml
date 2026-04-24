@@ -257,31 +257,8 @@ jobs:
           docker compose logs
           exit 1
 
-      - name: Submit job through frontend and verify completion
-        run: |
-          JOB_RESPONSE=$(curl -sS -X POST http://localhost:3000/submit)
-          echo "Job response: $JOB_RESPONSE"
-
-          JOB_ID=$(echo "$JOB_RESPONSE" | python -c "import sys,json; print(json.load(sys.stdin)['job_id'])")
-          echo "Job ID: $JOB_ID"
-
-          for i in {1..30}; do
-            STATUS_RESPONSE=$(curl -sS http://localhost:3000/status/$JOB_ID)
-            echo "Status response: $STATUS_RESPONSE"
-
-            STATUS=$(echo "$STATUS_RESPONSE" | python -c "import sys,json; print(json.load(sys.stdin)['status'])")
-
-            if [ "$STATUS" = "completed" ]; then
-              echo "Job completed successfully"
-              exit 0
-            fi
-
-            sleep 2
-          done
-
-          echo "Job did not complete in time"
-          docker compose logs
-          exit 1
+      - name: Run integration test script
+        run: bash scripts/integration-test.sh
 
       - name: Tear down stack
         if: always()
